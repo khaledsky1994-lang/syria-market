@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Syria Market",
+    "slug": "syria-market",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#0E7C61"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.syriamarket.app"
+    },
+    "android": {
+      "package": "com.syriamarket.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#0E7C61"
+      }
+    },
+    "extra": {
+      "supportsRTL": true
+    }
+  }
+}

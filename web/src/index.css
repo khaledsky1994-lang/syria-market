@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root {
+  /* Color tokens — drawn from the new Syrian flag (2025): green, white, black, red */
+  --color-bg: #F6F9F7;
+  --color-surface: #FFFFFF;
+  --color-ink: #16191B;
+  --color-ink-muted: #5B655F;
+  --color-primary: #0B7A3D;
+  --color-primary-dark: #075C2E;
+  --color-accent: #CE1126;
+  --color-accent-dark: #A30E1F;
+  --color-border: #DCE3DD;
+  --color-danger: #CE1126;
+  --color-success: #0B7A3D;
+
+  --font-display: 'Cairo', sans-serif;
+  --font-number: 'Space Grotesk', sans-serif;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --shadow-card: 0 1px 2px rgba(22,25,27,0.06), 0 4px 14px rgba(22,25,27,0.05);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+}
+
+body[dir="rtl"] { text-align: right; }
+
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+input, textarea, select { font-family: inherit; }
+
+#root { min-height: 100vh; display: flex; flex-direction: column; }
+
+::selection { background: var(--color-brass); color: white; }
+
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
