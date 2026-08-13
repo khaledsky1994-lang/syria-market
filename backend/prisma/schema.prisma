@@ -22,11 +22,14 @@ model User {
   name          String
   email         String    @unique
   phone         String    @unique
-  passwordHash  String
+  passwordHash  String?   // null for accounts created via Google sign-in
+  googleId      String?   @unique
   avatarUrl     String?
   city          String?
   role          String    @default("USER")
-  isVerified    Boolean   @default(false)
+  emailVerified Boolean   @default(false)
+  verificationToken       String?
+  verificationTokenExpiresAt DateTime?
   isBanned      Boolean   @default(false)
   createdAt     DateTime  @default(now())
 
@@ -44,6 +47,7 @@ model Category {
   id        Int        @id @default(autoincrement())
   nameAr    String
   nameEn    String
+  nameTr    String?
   slug      String     @unique
   icon      String?
   parentId  Int?

@@ -15,9 +15,9 @@ router.get('/', async (req, res) => {
 
 // POST /api/categories - admin only
 router.post('/', requireAuth, requireAdmin, async (req, res) => {
-  const { nameAr, nameEn, slug, icon, parentId } = req.body;
+  const { nameAr, nameEn, nameTr, slug, icon, parentId } = req.body;
   const category = await prisma.category.create({
-    data: { nameAr, nameEn, slug, icon, parentId: parentId || null },
+    data: { nameAr, nameEn, nameTr, slug, icon, parentId: parentId || null },
   });
   res.status(201).json({ category });
 });

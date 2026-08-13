@@ -32,8 +32,21 @@ export default function ListingDetailPage() {
     window.alert('✓');
   };
 
+  const deleteListing = async () => {
+    if (!window.confirm(t('confirmDelete'))) return;
+    await api.delete(`/listings/${id}`);
+    navigate('/profile');
+  };
+
+  const markAsSold = async () => {
+    const { data } = await api.put(`/listings/${id}`, { status: 'SOLD' });
+    setListing((prev) => ({ ...prev, status: data.listing.status }));
+  };
+
   if (loading) return <p style={styles.loadingText}>{t('loading')}</p>;
   if (!listing) return <p style={styles.loadingText}>{t('noResults')}</p>;
+
+  const isOwner = user?.id === listing.sellerId;
 
   const conditionLabel = {
     NEW: t('conditionNew'), LIKE_NEW: t('conditionLikeNew'), GOOD: t('conditionGood'),
@@ -52,6 +65,7 @@ export default function ListingDetailPage() {
             ) : (
               <div style={styles.noImage}>📷</div>
             )}
+            {listing.status === 'SOLD' && <div style={styles.soldBadge}>{t('sold')}</div>}
           </div>
           {images.length > 1 && (
             <div style={styles.thumbRow}>
@@ -77,22 +91,32 @@ export default function ListingDetailPage() {
             <span style={styles.tag}>{listing.viewCount} {t('views')}</span>
           </div>
 
+          {isOwner && (
+            <div style={styles.ownerActions}>
+              <button style={styles.editButton} onClick={() => navigate(`/edit/${id}`)}>✎ {t('edit')}</button>
+              {listing.status !== 'SOLD' && (
+                <button style={styles.soldButton} onClick={markAsSold}>✓ {t('markAsSold')}</button>
+              )}
+              <button style={styles.deleteButton} onClick={deleteListing}>🗑 {t('delete')}</button>
+            </div>
+          )}
+
           <h3 style={styles.sectionHeading}>{t('adDescription')}</h3>
           <p style={styles.description}>{listing.description}</p>
 
-          <div style={styles.sellerCard}>
-            <div>
-              <div style={styles.sellerLabel}>{t('seller')}</div>
-              <div style={styles.sellerName}>{listing.seller.name}</div>
-              <div style={styles.sellerCity}>{listing.seller.city}</div>
-            </div>
-            {listing.sellerId !== user?.id && (
+          {!isOwner && (
+            <div style={styles.sellerCard}>
+              <div>
+                <div style={styles.sellerLabel}>{t('seller')}</div>
+                <div style={styles.sellerName}>{listing.seller.name}</div>
+                <div style={styles.sellerCity}>{listing.seller.city}</div>
+              </div>
               <button style={styles.contactButton} onClick={contactSeller}>{t('contactSeller')}</button>
-            )}
-          </div>
+            </div>
+          )}
 
           <p style={styles.codNote}>💵 {t('cashOnDelivery')}</p>
-          <button style={styles.reportLink} onClick={reportListing}>⚑ {t('reportListing')}</button>
+          {!isOwner && <button style={styles.reportLink} onClick={reportListing}>⚑ {t('reportListing')}</button>}
         </div>
       </div>
     </div>
@@ -102,7 +126,15 @@ export default function ListingDetailPage() {
 const styles = {
   container: { maxWidth: 1000, margin: '0 auto', padding: '28px 24px 60px' },
   grid: { display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 36 },
-  mainImageWrap: { aspectRatio: '4/3', borderRadius: 'var(--radius-lg)', overflow: 'hidden', background: '#EFE9DC' },
+  mainImageWrap: { position: 'relative', aspectRatio: '4/3', borderRadius: 'var(--radius-lg)', overflow: 'hidden', background: '#EFE9DC' },
+  soldBadge: {
+    position: 'absolute', top: 14, insetInlineStart: 14, background: 'var(--color-danger)', color: 'white',
+    padding: '5px 14px', borderRadius: 6, fontWeight: 700, fontSize: 13,
+  },
+  ownerActions: { display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' },
+  editButton: { background: 'var(--color-primary)', color: 'white', border: 'none', borderRadius: 8, padding: '9px 16px', fontWeight: 700, fontSize: 13 },
+  soldButton: { background: 'var(--color-bg)', border: '1px solid var(--color-border)', borderRadius: 8, padding: '9px 16px', fontWeight: 700, fontSize: 13 },
+  deleteButton: { background: '#FCECEA', color: 'var(--color-danger)', border: 'none', borderRadius: 8, padding: '9px 16px', fontWeight: 700, fontSize: 13 },
   mainImage: { width: '100%', height: '100%', objectFit: 'cover' },
   noImage: { width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48 },
   thumbRow: { display: 'flex', gap: 8, marginTop: 10 },

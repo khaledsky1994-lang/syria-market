@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
+import GoogleSignInButton from '../components/GoogleSignInButton';
 
 export default function RegisterPage() {
   const { t } = useTranslation();
@@ -46,6 +47,13 @@ export default function RegisterPage() {
 
         <button style={styles.button} disabled={loading}>{loading ? t('loading') : t('registerButton')}</button>
         <Link to="/login" style={styles.link}>{t('haveAccount')}</Link>
+
+        <div style={styles.divider}>
+          <span style={styles.dividerLine} />
+          <span style={styles.dividerText}>{t('orContinueWith')}</span>
+          <span style={styles.dividerLine} />
+        </div>
+        <GoogleSignInButton onSuccess={() => navigate('/')} onError={setError} />
       </form>
     </div>
   );
@@ -62,4 +70,7 @@ const styles = {
   button: { width: '100%', background: 'var(--color-primary)', color: 'white', border: 'none', borderRadius: 8, padding: 13, fontWeight: 700, fontSize: 15, marginTop: 6 },
   link: { display: 'block', textAlign: 'center', marginTop: 18, color: 'var(--color-primary)', fontSize: 13.5, fontWeight: 600 },
   error: { background: '#FCECEA', color: 'var(--color-danger)', padding: '10px 12px', borderRadius: 8, fontSize: 13, marginBottom: 14 },
+  divider: { display: 'flex', alignItems: 'center', gap: 10, margin: '20px 0 16px' },
+  dividerLine: { flex: 1, height: 1, background: 'var(--color-border)' },
+  dividerText: { fontSize: 12, color: 'var(--color-ink-muted)' },
 };

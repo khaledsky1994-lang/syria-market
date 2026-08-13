@@ -23,6 +23,16 @@ router.get('/', optionalAuth, async (req, res) => {
     sort = 'newest', page = 1, pageSize = 20,
   } = req.query;
 
+  let categoryFilter;
+  if (categoryId) {
+    const category = await prisma.category.findUnique({
+      where: { id: Number(categoryId) },
+      include: { children: true },
+    });
+    const ids = category ? [category.id, ...category.children.map((c) => c.id)] : [Number(categoryId)];
+    categoryFilter = { categoryId: { in: ids } };
+  }
+
   const where = {
     status: 'ACTIVE',
     ...(q && {
@@ -31,7 +41,7 @@ router.get('/', optionalAuth, async (req, res) => {
         { description: { contains: q } },
       ],
     }),
-    ...(categoryId && { categoryId: Number(categoryId) }),
+    ...(categoryFilter || {}),
     ...(city && { city }),
     ...(condition && { condition }),
     ...((minPrice || maxPrice) && {
@@ -70,7 +80,7 @@ router.get('/:id', optionalAuth, async (req, res) => {
     include: {
       images: true,
       category: true,
-      seller: { select: { id: true, name: true, city: true, avatarUrl: true, createdAt: true, isVerified: true } },
+      seller: { select: { id: true, name: true, city: true, avatarUrl: true, createdAt: true, emailVerified: true } },
     },
   }).catch(() => null);
 
@@ -116,7 +126,7 @@ router.put('/:id', requireAuth, async (req, res) => {
     return res.status(403).json({ error: 'غير مصرح / Not authorized' });
   }
 
-  const { title, description, price, condition, city, negotiable, status } = req.body;
+  const { title, description, price, condition, city, negotiable, status, categoryId } = req.body;
   const updated = await prisma.listing.update({
     where: { id },
     data: {
@@ -127,7 +137,9 @@ router.put('/:id', requireAuth, async (req, res) => {
       ...(city && { city }),
       ...(negotiable !== undefined && { negotiable: Boolean(negotiable) }),
       ...(status && { status }),
+      ...(categoryId && { categoryId: Number(categoryId) }),
     },
+    include: { images: true, category: true },
   });
   res.json({ listing: updated });
 });

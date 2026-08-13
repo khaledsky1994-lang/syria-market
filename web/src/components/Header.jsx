@@ -39,6 +39,12 @@ export default function Header() {
               عربي
             </button>
             <button
+              onClick={() => switchLang('tr')}
+              style={{ ...styles.langBtn, ...(i18n.language === 'tr' ? styles.langBtnActive : {}) }}
+            >
+              TR
+            </button>
+            <button
               onClick={() => switchLang('en')}
               style={{ ...styles.langBtn, ...(i18n.language === 'en' ? styles.langBtnActive : {}) }}
             >

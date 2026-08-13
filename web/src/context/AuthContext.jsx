@@ -28,6 +28,14 @@ export function AuthProvider({ children }) {
     return data.user;
   };
 
+  const googleSignIn = async (credential) => {
+    const { data } = await api.post('/auth/google', { credential });
+    localStorage.setItem('token', data.token);
+    setAuthToken(data.token);
+    setUser(data.user);
+    return data.user;
+  };
+
   const register = async (payload) => {
     const { data } = await api.post('/auth/register', payload);
     localStorage.setItem('token', data.token);
@@ -42,8 +50,14 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  const refreshUser = async () => {
+    const { data } = await api.get('/auth/me');
+    setUser(data.user);
+    return data.user;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, googleSignIn, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

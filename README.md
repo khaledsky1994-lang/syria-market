@@ -20,6 +20,50 @@ A full-stack marketplace app for buying/selling used goods — bilingual (Arabic
 ✅ الإبلاغ عن إعلان — Report a listing
 ✅ لوحة تحكم إدارية (إحصائيات، حظر مستخدمين، مراجعة إعلانات، بلاغات) — Admin dashboard
 ✅ دعم كامل للعربية (RTL) والإنكليزية — Full Arabic RTL + English support
+✅ تسجيل دخول بجوجل — Google sign-in (يحتاج إعداد بسيط، انظر أدناه)
+✅ تأكيد البريد الإلكتروني عند التسجيل — Email verification on signup
+✅ تعديل وحذف الإعلانات (لصاحبها) — Edit & delete your own listings
+✅ دعم اللغة التركية بالكامل (بالإضافة للعربية والإنكليزية) — Full Turkish support (alongside Arabic & English)
+✅ شجرة أقسام وفروع مفصّلة (على غرار صاحبندان) — Deep category tree with subcategories (Sahibinden-style)
+
+### الأقسام والفروع / Categories & subcategories
+النظام يستخدم بنية أقسام رئيسية + فروع (مثل صاحبندان): كل قسم رئيسي (سيارات، عقارات، إلكترونيات...) له عدة فروع دقيقة (سيارات → سيارات، دراجات نارية، قطع غيار...). بالصفحة الرئيسية، اضغط على أي قسم رئيسي ليظهر فروعه مباشرة دون مغادرة الصفحة. صفحة البحث فيها زر تبديل بين عرض شبكي وعرض قائمة، تماماً متل صاحبندان.
+The system uses a top-category + subcategory structure (like Sahibinden): each top category (Vehicles, Real Estate, Electronics...) has several precise subcategories. On the home page, clicking a top category reveals its subcategories inline without leaving the page. The search page has a grid/list view toggle, just like Sahibinden.
+
+يمكنك تعديل شجرة الأقسام من `backend/prisma/seed.js` وإعادة تشغيل `npm run seed`.
+You can edit the category tree in `backend/prisma/seed.js` and re-run `npm run seed`.
+
+### تسجيل الدخول بجوجل / Google Sign-In setup
+1. روح لـ https://console.cloud.google.com/apis/credentials وأنشئ مشروع (مجاني)
+2. Create Credentials → OAuth client ID → Web application
+3. أضف `http://localhost:5173` تحت Authorized JavaScript origins
+4. انسخ الـ Client ID وحطّه بمكانين:
+   - `backend/.env` → `GOOGLE_CLIENT_ID="..."`
+   - `web/.env` (أنشئه من `web/.env.example`) → `VITE_GOOGLE_CLIENT_ID="..."`
+5. أعد تشغيل الـ backend والويب
+
+بدون هذا الإعداد، التطبيق يعمل بشكل طبيعي بالتسجيل العادي فقط — زر جوجل يظهر رسالة توضح إنه غير مُفعّل بدل ما يتعطل.
+Without this setup, the app works fine with regular email/password registration — the Google button just shows a note that it's not configured yet, instead of breaking.
+
+### تأكيد البريد الإلكتروني / Email verification setup
+افتراضياً (بدون إعداد)، رابط التأكيد يُطبع في طرفية الـ backend مباشرة — جرّبه فوراً بدون أي حساب بريد.
+By default, the verification link is printed directly in the backend terminal — test it immediately with no email account needed.
+
+لإرسال إيميلات حقيقية لاحقاً، عبّي هذي القيم في `backend/.env`:
+To send real emails later, fill these into `backend/.env`:
+```
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT="587"
+SMTP_USER="youraddress@gmail.com"
+SMTP_PASS="your-16-character-app-password"   # Google Account → Security → App Passwords
+SMTP_FROM="Syria Market <youraddress@gmail.com>"
+```
+(أو استخدم خدمة مجانية مثل Resend/SendGrid ببيانات SMTP الخاصة فيها)
+(or use a free service like Resend/SendGrid with their SMTP credentials)
+
+### تسجيل الدخول بآبل / Apple Sign-In
+يحتاج حساب Apple Developer مدفوع (99$/سنة). البنية الأساسية بالـ backend جاهزة (`POST /api/auth/apple`) لحد ما تصير جاهز تربطها بحسابك.
+Requires a paid Apple Developer account ($99/year). The backend scaffolding (`POST /api/auth/apple`) is ready to wire up once you have one.
 
 ### ملاحظة حول الدفع / Payment note
 لم يتم دمج بوابة دفع إلكتروني لأن معظم البوابات العالمية (Stripe, PayPal...) لا تعمل في سوريا بسبب العقوبات.

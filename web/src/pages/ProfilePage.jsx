@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api, { SERVER_ORIGIN } from '../api/client';
 import { useAuth } from '../context/AuthContext';
-import ListingCard from '../components/ListingCard';
 
 export default function ProfilePage() {
   const { t, i18n } = useTranslation();
@@ -11,10 +10,20 @@ export default function ProfilePage() {
   const navigate = useNavigate();
   const [myListings, setMyListings] = useState([]);
 
+  const loadListings = () => {
+    api.get('/listings/user/me').then(({ data }) => setMyListings(data.listings));
+  };
+
   useEffect(() => {
     if (!user) return navigate('/login');
-    api.get('/listings/user/me').then(({ data }) => setMyListings(data.listings));
+    loadListings();
   }, [user]); // eslint-disable-line
+
+  const deleteListing = async (id) => {
+    if (!window.confirm(t('confirmDelete'))) return;
+    await api.delete(`/listings/${id}`);
+    loadListings();
+  };
 
   if (!user) return null;
 
@@ -32,6 +41,7 @@ export default function ProfilePage() {
         <span style={styles.sectionTitle}>{t('language')}</span>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={() => i18n.changeLanguage('ar')} style={{ ...styles.langBtn, ...(i18n.language === 'ar' ? styles.langBtnActive : {}) }}>العربية</button>
+          <button onClick={() => i18n.changeLanguage('tr')} style={{ ...styles.langBtn, ...(i18n.language === 'tr' ? styles.langBtnActive : {}) }}>Türkçe</button>
           <button onClick={() => i18n.changeLanguage('en')} style={{ ...styles.langBtn, ...(i18n.language === 'en' ? styles.langBtnActive : {}) }}>English</button>
         </div>
       </div>
@@ -41,7 +51,24 @@ export default function ProfilePage() {
         <p style={styles.empty}>{t('noResults')}</p>
       ) : (
         <div style={styles.grid}>
-          {myListings.map((l) => <ListingCard key={l.id} listing={l} />)}
+          {myListings.map((l) => (
+            <div key={l.id} style={styles.listingCard}>
+              <div onClick={() => navigate(`/listing/${l.id}`)} style={{ cursor: 'pointer' }}>
+                {l.images?.[0] ? (
+                  <img src={`${SERVER_ORIGIN}${l.images[0].url}`} alt="" style={styles.listingImg} />
+                ) : <div style={{ ...styles.listingImg, background: '#EFE9DC' }} />}
+                <div style={styles.listingBody}>
+                  <div style={styles.listingTitle}>{l.title}</div>
+                  <div style={styles.listingPrice}>{l.price.toLocaleString()} {l.currency}</div>
+                  {l.status === 'SOLD' && <div style={styles.soldTag}>{t('sold')}</div>}
+                </div>
+              </div>
+              <div style={styles.cardActions}>
+                <button style={styles.editBtn} onClick={() => navigate(`/edit/${l.id}`)}>✎ {t('edit')}</button>
+                <button style={styles.deleteBtn} onClick={() => deleteListing(l.id)}>🗑 {t('delete')}</button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -67,4 +94,13 @@ const styles = {
   sectionTitle: { fontSize: 16, fontWeight: 700, marginBottom: 14 },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 },
   empty: { color: 'var(--color-ink-muted)', padding: '20px 0' },
+  listingCard: { background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', overflow: 'hidden' },
+  listingImg: { width: '100%', aspectRatio: '4/3', objectFit: 'cover' },
+  listingBody: { padding: '10px 12px' },
+  listingTitle: { fontSize: 13.5, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  listingPrice: { fontSize: 13, color: 'var(--color-primary-dark)', fontWeight: 700, marginTop: 2 },
+  soldTag: { display: 'inline-block', marginTop: 4, fontSize: 11, color: 'var(--color-danger)', fontWeight: 700 },
+  cardActions: { display: 'flex', borderTop: '1px solid var(--color-border)' },
+  editBtn: { flex: 1, border: 'none', background: 'var(--color-bg)', padding: '9px 0', fontSize: 12, fontWeight: 700 },
+  deleteBtn: { flex: 1, border: 'none', borderInlineStart: '1px solid var(--color-border)', background: 'var(--color-bg)', color: 'var(--color-danger)', padding: '9px 0', fontSize: 12, fontWeight: 700 },
 };
